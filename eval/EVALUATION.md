@@ -88,3 +88,49 @@ Cause: the `depth==1` guard was removed from `jf_find_key` (around line 1578), s
 `jf_field` lookup returns the first matching key at any depth, including in the REST handlers the
 round-1 bundle said were untouched. Tool dispatch now calls `jf_field(body, "name")` on the whole request body.
 None of these cases are covered by the 43-test probe.
+
+---
+
+# Round 3: our fix (v1 source + one function), 2026-09-29
+
+the builder's v2 was dropped; the fix is applied to the v1 source, which handled every request correctly.
+
+## Root cause (found with macOS `sample`, not guessed)
+The profile during a slow request was almost all `jf_raw_go` and `String.from_list`. `jf_raw_go` reads an
+unquoted JSON value (a number, true/false/null):
+
+    Bool.pick(String, jf_raw_end(h), String.from_list(List.reverse(acc)), jf_raw_go(t, h <> acc))
+
+`Bool.pick` evaluates both branches, so at every character it rebuilt the whole string read so far, and it
+never stopped at the value's end. Every MCP request reads the JSON-RPC `"id": 1` this way
+(`mcp_id_json`), so it walked the rest of the request body with O(k) work per character: quadratic.
+The REST clap endpoint reads `"count"` the same way and had the same bug.
+
+## Fix
+`jf_raw_go` now takes a `hit: Bool` parameter (whether the previous character was a terminator) and uses
+`match` on it, which only evaluates the branch taken. That is the JfAct pattern the file already uses in `jf_str_go`.
+It stops at the terminator and builds the string once. One function changed, plus one call site.
+
+## Results (same Mac)
+| | 4 KB | 16 KB | 32 KB | 60 KB |
+|---|---|---|---|---|
+| MCP create, before | 0.20 s | 2.98 s | 13.7 s | — |
+| MCP create, after | 0.013 s | 0.036 s | 0.071 s | 0.133 s |
+| REST clap + padding, before → after | | 2.85 s → 0.006 s | 13.5 s → 0.011 s | |
+
+Time now grows linearly; MCP is as fast as REST.
+
+## Correctness
+- Builds clean; 43-test probe `RESULT: PASS=43 FAIL=0`.
+- `diff_v1.py`: 88 requests (16 id shapes × 4 positions, junk/array/object ids, 10 clap bodies,
+  the round-2 regression cases, nested REST keys, no-auth) replayed against v1 and the fix:
+  **0 differences**. The same harness finds 8 differences between v1 and the builder's v2, so it can catch them.
+- adv.py: same 31/8 as round 1; the 8 are known limits or test artifacts.
+- kill9.py: acknowledged write, then SIGKILL, then restart, 20 cycles: 20/20 survived (the round-1
+  "SIGKILL after ack" failure was the rate limiter answering 429, not data loss).
+
+## Not changed
+- `bocht-source/` (r61 and `src/`) likely has the same `jf_raw_go` (REST clap). r61 is a pinned release
+  that doesn't build on 2.0.34, so it was left alone.
+- Other strict `Bool.pick` recursions (`jf_skip_ws`, `jf_trail_ws_go`, `mcp_bal_go`) still walk the whole
+  body once per call. That is linear and measured fine up to the 64 KB cap; cleanup is optional.
