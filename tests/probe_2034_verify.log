@@ -1,0 +1,50 @@
+RESULT: PASS=43 FAIL=0
+probe start
+server started pid=129494
+ok: initialize http 200
+ok: initialize protocolVersion
+ok: initialize serverInfo
+ok: tools/list http 200
+ok: tools/list has all seven
+ok: schema blog_create_post
+ok: schema blog_list_posts
+ok: schema blog_get_post
+ok: schema blog_update_post
+ok: schema blog_publish_post
+ok: schema blog_unpublish_post
+ok: schema blog_delete_post
+ok: create http 200
+ok: create not isError
+ok: create returns id
+ok: create status draft
+ok: create tags array
+ok: draft in draft list
+ok: draft excluded from published
+ok: get returns post
+ok: update title
+ok: update tags
+ok: publish status
+ok: published in published list
+ok: unpublish status
+ok: delete ok
+ok: get deleted isError
+ok: missing token -> 401
+ok: malformed JSON -> -32700
+ok: invalid JSON-RPC -> -32600
+ok: unknown method -> -32601
+ok: invalid params -> -32602
+ok: unknown tool isError
+ok: article create REST
+ok: article get REST
+ok: article no-auth rejected
+ok: notifications/initialized 202
+ok: notifications/initialized empty body
+ok: restart setup: post created
+stopping :18081 listener pid=129494
+server stopped for restart test
+server started pid=129501
+ok: restart: server came back
+ok: restart: initialize still auths
+ok: restart: post survived WAL replay
+ok: restart: post in draft list after replay
+stopping :18081 listener pid=129501

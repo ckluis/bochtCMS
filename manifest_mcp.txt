@@ -1,0 +1,6 @@
+BINARY: ../../medium/fresh/med_native_mcp1
+BINARY_SHA256: ec9938227c164afb2fc82d5ac44089eb847ddfe0b73a97784883dd6afb7cdd1c
+RUN_UTC: 20260929T112707Z
+FILE: probe_final_run2.log PASS=43 FAIL=0
+TOTAL_PASS: 43
+TOTAL_FAIL: 0
