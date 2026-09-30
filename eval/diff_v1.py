@@ -40,6 +40,8 @@ def run(binary):
     send('{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"blog_create_post","arguments":{"title":"t","body":"b","tags":"notarray"}}}')
     send('{"jsonrpc":"2.0","id":11,"method":"initialize","params":"notobj"}')
     send('{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"arguments":{"name":"blog_list_posts"}}}')
+    send('{"jsonrpc":"2.0","id":14,"method":"tools/call","params":{"name":"blog_create_post","arguments":"nope"}}')
+    send('{"jsonrpc":"2.0","id":15,"method":"tools/call","params":{"name":"blog_create_post","arguments":["title","x"]}}')
     send('{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"blog_list_posts","arguments":{"status":"all"}}}')
     a=send('{"title":"art","body":"b"}', path="/v1/articles")
     aid=json.loads(a).get("id","a1")
