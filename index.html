@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bochtCMS: a CMS with no screens, and the curve its tests never saw</title>
+<meta name="description" content="The Bend series, part 2: an MCP-only blog CMS on the bocht framework. 43 of 43 tests passed; one blog post still froze the server for two minutes. One function fixed, 1,200x faster at 48 KB, zero behavior change.">
+<link rel="canonical" href="https://ckluis.github.io/experiments/bend/bochtCMS/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ckluis / experiments">
+<meta property="og:url" content="https://ckluis.github.io/experiments/bend/bochtCMS/">
+<meta property="og:title" content="bochtCMS: a CMS with no screens, and the curve its tests never saw">
+<meta property="og:description" content="43 of 43 tests passed. The server still froze for two minutes. Part 2 of the Bend series.">
+<meta property="og:image" content="https://ckluis.github.io/experiments/previews/social-bend-bochtcms.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="bochtCMS: time to save one post bending upward with size before the fix, flat after: 126 s to 0.105 s at 48 KB.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ckluis">
+<meta name="twitter:creator" content="@ckluis">
+<meta name="twitter:title" content="bochtCMS: a CMS with no screens, and the curve its tests never saw">
+<meta name="twitter:description" content="43 of 43 tests passed. The server still froze for two minutes. Part 2 of the Bend series.">
+<meta name="twitter:image" content="https://ckluis.github.io/experiments/previews/social-bend-bochtcms.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/series.css">
+</head>
+<body>
+<a href="https://ckluis.github.io/experiments/" class="xa-back" aria-label="Back to all experiments"><span class="xa-arrow">←</span> Experiments</a>
+<header class="hero">
+  <div class="wrap">
+    <nav class="rail reveal" aria-label="The Bend series"><span class="rl">The Bend series</span><a href="../index.html"><span class="i">00</span>Series</a><a href="../bocht/index.html"><span class="i">01</span>bocht</a><a href="../bochtCMS/index.html" aria-current="page"><span class="i">02</span>bochtCMS</a><a href="../shellOS/index.html"><span class="i">03</span>shellOS</a></nav>
+    <div>
+      <div class="eyebrow reveal">02 · The app · Sept 2026</div>
+      <h1 class="reveal d1">bochtCMS<span class="def">a blog CMS on bocht · no UI · seven MCP tools</span></h1>
+      <p class="tag reveal d2">A CMS with no screens, and the <em>curve</em> its own tests never saw.</p>
+      <p class="lede reveal d2">The builder put a blog CMS on top of <a href="../bocht/index.html" style="color:#fff">bocht</a> whose only interface is seven MCP tools, and verified it 43 for 43. I handed the bundle to Claude Code to check. It reproduced every claim, and found a quadratic slowdown that let one blog post freeze the server for two minutes. The builder's fix made it worse. The real fix was one function.</p>
+      <div class="hstats reveal d3">
+        <div><div class="n">7</div><div class="l">MCP tools, no UI</div></div>
+        <div><div class="n">9,598</div><div class="l">lines of Bend</div></div>
+        <div><div class="n">43/43</div><div class="l">tests, every version</div></div>
+        <div><div class="n">1</div><div class="l">function fixed</div></div>
+      </div>
+      <nav class="jump reveal d3" aria-label="Sections"><a href="#cms">01 The CMS</a><a href="#unfolded">02 How it unfolded</a><a href="#curve">03 The curve</a><a href="#regressions">04 Regressions</a><a href="#proof">05 Proof</a><a href="#lessons">06 Lessons</a><a href="#series">The series</a></nav>
+    </div>
+
+    <figure class="scope reveal d2" aria-label="Chart: time to save one post versus post size. Before the fix the time bends sharply upward to 126 seconds at 48 KB; after the fix it stays flat near zero, 0.105 seconds.">
+      <div class="lab"><span>Time to save one post</span><span>measured · M-series Mac</span></div>
+      <svg viewBox="0 0 600 380" role="img" aria-hidden="true">
+        <g class="axis">
+          <line class="gridl" x1="40" y1="330" x2="570" y2="330"/>
+          <line class="gridl" x1="40" y1="238" x2="570" y2="238"/>
+          <line class="gridl" x1="40" y1="146" x2="570" y2="146"/>
+          <line class="gridl" x1="40" y1="53.1" x2="570" y2="53.1"/>
+          <text x="8" y="334">0 s</text><text x="4" y="242">40 s</text><text x="4" y="150">80 s</text><text x="0" y="57">120 s</text>
+          <text x="36" y="356">0</text><text x="136" y="356">8 KB</text><text x="243" y="356">16 KB</text><text x="349" y="356">24 KB</text><text x="455" y="356">32 KB</text><text x="528" y="356">48 KB</text>
+        </g>
+        <path class="c-before draw" d="M40.0,330.0 C41.8,330.0 47.1,330.0 50.6,330.0 C54.1,329.9 55.9,329.9 61.2,329.9 C66.5,329.8 71.8,329.8 82.4,329.5 C93.0,329.3 103.6,329.4 124.8,328.2 C146.0,327.0 181.3,325.0 209.6,322.4 C237.9,319.9 266.1,317.2 294.4,312.8 C322.7,308.4 350.9,307.5 379.2,295.9 C407.5,284.3 435.7,286.0 464.0,243.1 C492.3,200.3 534.7,72.8 548.8,38.8"/>
+        <path class="c-after draw late" d="M40,326 L548.8,325.2"/>
+        <circle cx="548.8" cy="38.8" r="5" fill="#e8894d"/>
+        <circle cx="548.8" cy="325.2" r="5" fill="#62d99c"/>
+        <text x="444" y="30" style="fill:#e8894d">before · 126.2 s</text>
+        <text x="420" y="314" style="fill:#62d99c">after · 0.105 s</text>
+      </svg>
+      <div class="big"><div class="x">1,200×</div><div class="c">faster at 48 KB · same answers, byte for byte</div></div>
+    </figure>
+  </div>
+</header>
+
+<!-- ============================ STRIP ============================ -->
+<div class="strip"><div class="wrap">
+  <div class="cell"><div class="k">The framework</div><div class="v"><a href="../bocht/index.html">bocht</a>: storage, auth, limits, HTTP and MCP in one process</div></div>
+  <div class="cell"><div class="k">The example</div><div class="v">A blog CMS whose only interface is seven MCP tools</div></div>
+  <div class="cell"><div class="k">The miss</div><div class="v">Save time grew with the square of post size</div></div>
+  <div class="cell"><div class="k">The fix</div><div class="v">One strict branch made lazy. Zero behavior change.</div></div>
+</div></div>
+
+<!-- ============================ 01 FRAMEWORK ============================ -->
+<section class="sec" id="cms"><div class="wrap">
+  <div class="sh">
+    <div class="num reveal">01 — The CMS</div>
+    <h2 class="reveal d1">The interface <em>is</em> the app.</h2>
+    <p class="reveal d2">The proof that Bocht is a framework and not just one service: a second application built on it. A blog CMS with no web UI at all. Its entire surface is seven MCP tools on <code>POST /mcp</code>, JSON-RPC 2.0, designed to be driven by an LLM client.</p>
+  </div>
+
+  <div class="cms">
+    <div>
+      <div class="tools reveal">
+        <div class="row"><div>Tool</div><div>What it does</div></div>
+        <div class="row"><div><code>blog_create_post</code></div><div>Create a draft: title, body, tags</div></div>
+        <div class="row"><div><code>blog_list_posts</code></div><div>List posts by status: draft, published or all</div></div>
+        <div class="row"><div><code>blog_get_post</code></div><div>Fetch one post by id</div></div>
+        <div class="row"><div><code>blog_update_post</code></div><div>Change title, body or tags</div></div>
+        <div class="row"><div><code>blog_publish_post</code></div><div>Draft → published</div></div>
+        <div class="row"><div><code>blog_unpublish_post</code></div><div>Published → draft</div></div>
+        <div class="row"><div><code>blog_delete_post</code></div><div>Remove a post</div></div>
+      </div>
+      <div class="uses">
+        <div class="use reveal"><span class="ck">✓</span><div><b>Same storage.</b> Posts are records in the framework's WAL and snapshots, so they survive restarts with no extra code.</div></div>
+        <div class="use reveal"><span class="ck">✓</span><div><b>Same keys.</b> The Bearer keys and roles that guard the REST API guard every tool call.</div></div>
+        <div class="use reveal"><span class="ck">✓</span><div><b>Same server.</b> One more route in the router; keep-alive, limits and error shapes come free.</div></div>
+        <div class="use reveal"><span class="ck">✓</span><div><b>Strict protocol.</b> The full JSON-RPC error range from <code>-32700</code> to <code>-32602</code>; unknown tools and missing posts are tool errors, not transport failures.</div></div>
+      </div>
+    </div>
+
+    <figure class="term reveal d1" aria-label="A real exchange with the fixed server">
+      <div class="bar"><i></i><i></i><i></i><span>POST /mcp · captured from the fixed build</span></div>
+<pre><span class="m"># initialize</span>
+<span class="q">→ {"jsonrpc":"2.0","id":1,"method":"initialize",
+   "params":{"protocolVersion":"2025-06-18"}}</span>
+<span class="a">← {"result":{"protocolVersion":"2025-06-18",
+   "capabilities":{"tools":{}},
+   "serverInfo":{"name":"bocht-fresh-blog","version":"0.1.0"}}}</span>
+
+<span class="m"># create a draft</span>
+<span class="q">→ {"method":"tools/call","params":{"name":"blog_create_post",
+   "arguments":{"title":"Hello, MCP",
+     "body":"The interface is the app.","tags":["mcp","meta"]}}}</span>
+<span class="a">← {"id":"p1","author":"k_0","title":"Hello, MCP",
+   "tags":["mcp","meta"],"status":"draft", …}</span>
+
+<span class="m"># publish it</span>
+<span class="q">→ {"method":"tools/call","params":{"name":"blog_publish_post",
+   "arguments":{"id":"p1"}}}</span>
+<span class="a">← {"id":"p1", …, "status":"published"}</span>
+
+<span class="m"># a post that isn't there: a tool error, not a crash</span>
+<span class="q">→ {"name":"blog_get_post","arguments":{"id":"p9"}}</span>
+<span class="e">← {"content":[{"text":"{\"error\":\"not_found\",\"id\":\"p9\"}"}],
+   "isError":true}</span>
+
+<span class="m"># no token</span>
+<span class="e">← 401 {"error":"unauthorized","_hint":"See GET /help for the API."}</span></pre>
+    </figure>
+  </div>
+  <p class="note reveal">Responses trimmed for width; the full bodies are in the evaluation scripts. The builder also wrote a 101-post blog through these tools as a dogfooding exercise. That run wasn't repeated here.</p>
+</div></section>
+<!-- ============================ 02 HOW IT UNFOLDED ============================ -->
+<section class="sec alt" id="unfolded"><div class="wrap">
+  <div class="sh">
+    <div class="num reveal">02 — How it unfolded</div>
+    <h2 class="reveal d1">Built by one AI. <em>Checked by another.</em></h2>
+    <p class="reveal d2">The framework was hardened first; the CMS went on top in a morning; the audit took three rounds. The builder's method is on the <a href="../bocht/index.html#process">bocht</a> page.</p>
+  </div>
+  <div class="timeline">
+    <div class="tl reveal"><div class="dot"></div><div class="when">28 Sep · r61 pinned</div>
+      <h4>The framework hardens <span class="who b">builder</span></h4>
+      <p>The builder reports a 200-item hardening campaign landing on release r61: WAL purge tombstones, snapshot HMAC, per-bucket rate limits, keep-alive half-close handling. One of the 200 items ships in the bundle (27 checks, all pass).</p></div>
+    <div class="tl reveal"><div class="dot"></div><div class="when">29 Sep · morning</div>
+      <h4>The CMS goes on top, additively <span class="who b">builder</span></h4>
+      <p>Per the builder, the MCP blog is appended as one marked section without touching existing lines. It is verified 43/43, then upgraded to Bend 2.0.34 and re-verified.</p></div>
+    <div class="tl r1 reveal"><div class="dot"></div><div class="when">Round 1 · evaluate</div>
+      <h4>Every claim reproduces. Then the curve. <span class="who c">Claude Code</span></h4>
+      <p>Hashes match, it builds on macOS in 26 seconds, 43/43 passes. Forty extra checks mostly hold — then one timing sweep shows a 16 KB post taking 3 seconds, and a 32 KB post blocking every other client for 33.</p></div>
+    <div class="tl r2 reveal"><div class="dot"></div><div class="when">Round 2 · the builder's fix</div>
+      <h4>"O(n²) fixed." It wasn't. <span class="who b">builder</span></h4>
+      <p>The "deep fix" removed a depth check from the JSON key finder and skipped several validations. Same speed on the same machine. Seven behaviors changed; one turned a read into a delete. Still 43/43.</p></div>
+    <div class="tl r3 reveal"><div class="dot"></div><div class="when">Round 3 · the real fix</div>
+      <h4>Profile, fix one function, prove nothing else moved <span class="who c">Claude Code</span></h4>
+      <p>Start again from the version that behaved correctly. Sample the process mid-request, find the hot function, apply the pattern the codebase already uses elsewhere, then replay 90 requests against old and new and diff every byte.</p></div>
+  </div>
+
+</div></section>
+<section class="sec dark" id="curve"><div class="wrap">
+  <div class="sh">
+    <div class="num reveal">03 — The curve</div>
+    <h2 class="reveal d1">Double the post, <em>quadruple the wait.</em></h2>
+    <p class="reveal d2">On a log–log chart, a straight line's slope tells you the algorithm. Slope one means time grows with size. Slope two means it grows with the square. The original and the builder's "fix" climb at slope two, steepening further past 32 KB. The fixed build runs at slope one — the same line REST was always on.</p>
+  </div>
+
+  <figure class="chart reveal" aria-label="Log-log chart of time to save one post against post size for three builds. The original and the builder's fix rise steeply at about slope two, reaching 126 and 152 seconds at 48 KB. The fixed build rises at slope one, reaching 0.13 seconds at 60 KB.">
+    <svg viewBox="0 0 760 420" role="img" aria-hidden="true">
+      <g>
+        <line class="gridl" x1="70" y1="324.1" x2="730" y2="324.1"/><line class="gridl" x1="70" y1="258.4" x2="730" y2="258.4"/>
+        <line class="gridl" x1="70" y1="192.7" x2="730" y2="192.7"/><line class="gridl" x1="70" y1="127" x2="730" y2="127"/><line class="gridl" x1="70" y1="61.3" x2="730" y2="61.3"/>
+        <line class="gridl" x1="70" y1="30" x2="70" y2="370"/><line class="gridl" x1="180" y1="30" x2="180" y2="370"/><line class="gridl" x1="290" y1="30" x2="290" y2="370"/><line class="gridl" x1="400" y1="30" x2="400" y2="370"/><line class="gridl" x1="510" y1="30" x2="510" y2="370"/><line class="gridl" x1="620" y1="30" x2="620" y2="370"/><line class="gridl" x1="730" y1="30" x2="730" y2="370"/>
+        <text x="16" y="328">10 ms</text><text x="12" y="262">100 ms</text><text x="40" y="197">1 s</text><text x="32" y="131">10 s</text><text x="24" y="65">100 s</text>
+        <text x="56" y="394">1 KB</text><text x="166" y="394">2 KB</text><text x="276" y="394">4 KB</text><text x="386" y="394">8 KB</text><text x="492" y="394">16 KB</text><text x="602" y="394">32 KB</text><text x="712" y="394">64 KB</text>
+        <text x="330" y="414" style="fill:rgba(242,233,218,.38)">post body size (log scale)</text>
+      </g>
+      <line x1="70" y1="360.4" x2="730" y2="241.8" stroke="rgba(242,233,218,.22)" stroke-width="1.2" stroke-dasharray="3 5"/>
+      <line x1="70" y1="314.5" x2="730" y2="77.2" stroke="rgba(242,233,218,.22)" stroke-width="1.2" stroke-dasharray="3 5"/>
+      <text x="628" y="246" style="fill:rgba(242,233,218,.4)">slope 1</text>
+      <text x="560" y="116" style="fill:rgba(242,233,218,.4)" transform="rotate(-19 560 116)">slope 2</text>
+      <path d="M70.0,302.3 L180.0,275.5 L290.0,238.2 L400.0,200.3 L510.0,161.9 L574.3,139.7 L620.0,118.3 L655.4,84.0 L684.3,49.3" fill="none" stroke="#c9a6a0" stroke-width="2.4" stroke-dasharray="7 6"/>
+      <path class="c-before draw" d="M70.0,303.3 L180.0,275.6 L290.0,238.7 L400.0,199.6 L510.0,158.8 L574.3,135.4 L620.0,115.9 L655.4,89.2 L684.3,54.7"/>
+      <path class="c-after draw late" d="M70.0,356.6 L180.0,341.1 L290.0,324.7 L400.0,306.7 L510.0,287.7 L574.3,276.5 L620.0,268.7 L655.4,262.2 L684.3,256.9 L719.8,250.4"/>
+      <g fill="#e8894d"><circle cx="70" cy="303.3" r="3.5"/><circle cx="180" cy="275.6" r="3.5"/><circle cx="290" cy="238.7" r="3.5"/><circle cx="400" cy="199.6" r="3.5"/><circle cx="510" cy="158.8" r="3.5"/><circle cx="574.3" cy="135.4" r="3.5"/><circle cx="620" cy="115.9" r="3.5"/><circle cx="655.4" cy="89.2" r="3.5"/><circle cx="684.3" cy="54.7" r="3.5"/></g>
+      <g fill="#62d99c"><circle cx="70" cy="356.6" r="3.5"/><circle cx="180" cy="341.1" r="3.5"/><circle cx="290" cy="324.7" r="3.5"/><circle cx="400" cy="306.7" r="3.5"/><circle cx="510" cy="287.7" r="3.5"/><circle cx="574.3" cy="276.5" r="3.5"/><circle cx="620" cy="268.7" r="3.5"/><circle cx="655.4" cy="262.2" r="3.5"/><circle cx="684.3" cy="256.9" r="3.5"/><circle cx="719.8" cy="250.4" r="3.5"/></g>
+      <text x="580" y="44" style="fill:#e8894d">126 s</text><text x="694" y="46" style="fill:#c9a6a0">152 s</text><text x="664" y="286" style="fill:#62d99c">0.13 s</text>
+    </svg>
+    <div class="legend"><span class="lb">original (v1)</span><span class="l2">builder's "deep fix" (v2)</span><span class="la">fixed</span><span class="lg">reference slopes</span></div>
+  </figure>
+
+  <div class="scrollx reveal">
+    <table class="dtable">
+      <tr><th>Body size</th><th>1 KB</th><th>4 KB</th><th>8 KB</th><th>16 KB</th><th>24 KB</th><th>32 KB</th><th>40 KB</th><th>48 KB</th><th>60 KB</th></tr>
+      <tr><td class="b">original</td><td>0.021 s</td><td>0.199 s</td><td>0.787 s</td><td>3.28 s</td><td>7.45 s</td><td>14.8 s</td><td>37.6 s</td><td>126.2 s</td><td>—</td></tr>
+      <tr><td class="v">builder's fix</td><td>0.022 s</td><td>0.203 s</td><td>0.766 s</td><td>2.94 s</td><td>6.41 s</td><td>13.6 s</td><td>45.1 s</td><td>152.3 s</td><td>—</td></tr>
+      <tr><td class="f">fixed</td><td>0.003 s</td><td>0.010 s</td><td>0.018 s</td><td>0.036 s</td><td>0.053 s</td><td>0.070 s</td><td>0.088 s</td><td>0.105 s</td><td>0.133 s</td></tr>
+    </table>
+  </div>
+  <p class="note reveal">Each cell is one <code>blog_create_post</code> call on the same Mac, measured with <code>eval/sweep.py</code>; fixed-build cells are the best of three. The server caps request bodies at 64 KB, so 60 KB is the largest post the service accepts.</p>
+
+  <div class="two">
+    <div class="panel reveal">
+      <h3>Where the time went</h3>
+      <p>Four seconds of macOS <code>sample</code> on the original server while it handled one <code>tools/list</code> request padded to 24 KB. Almost every sample sat in one JSON helper and the string-building it triggered.</p>
+      <div class="prof">
+        <div class="row"><span>jf_raw_go <span style="color:rgba(242,233,218,.45)">+ the frees it triggers</span></span><span>52%</span><div class="barw"><i style="width:52%"></i></div></div>
+        <div class="row"><span>String.from_list</span><span>33%</span><div class="barw"><i style="width:33%"></i></div></div>
+        <div class="row"><span>jf_raw_go (continuation frames)</span><span>11%</span><div class="barw"><i style="width:11%"></i></div></div>
+        <div class="row cold"><span>everything else</span><span>4%</span><div class="barw"><i style="width:4%"></i></div></div>
+      </div>
+      <p style="margin-top:14px"><code>jf_raw_go</code> reads unquoted JSON values like numbers. Every MCP request uses it once, to read the JSON-RPC <code>"id": 1</code>. REST never calls it on a post body, which is why REST stayed fast.</p>
+    </div>
+    <div class="panel reveal d1">
+      <h3>Why a one-character id cost two minutes</h3>
+      <p>In Bend, <code>Bool.pick(cond, a, b)</code> is an ordinary function: both <code>a</code> and <code>b</code> are evaluated before it picks one. So at every character, the helper rebuilt the whole string read so far <em>and</em> kept going — past the end of the number, through the rest of the body.</p>
+<div class="code"><span class="c"># before: both branches run at every character</span>
+<span class="del"><span class="bad">Bool.pick</span>(String, jf_raw_end(h),
+  <span class="bad">String.from_list(List.reverse(acc))</span>,  <span class="c"># O(k) each time</span>
+  jf_raw_go(t, h &lt;&gt; acc))                 <span class="c"># never stops</span></span>
+<span class="c"># after: carry the stop flag in, match on it (lazy)</span>
+<span class="add"><span class="k">match</span> hit:
+  <span class="k">case</span> True{}:  <span class="good">jf_raw_fin(acc)</span>          <span class="c"># built once</span>
+  <span class="k">case</span> False{}: jf_raw_go(t, h &lt;&gt; acc, jf_raw_end(h))</span></div>
+      <p style="margin-top:12px">The file already documented this trap and used the fix in its string scanner. This one helper had been missed. 22 lines added, 6 removed.</p>
+    </div>
+  </div>
+</div></section><section class="sec alt" id="regressions"><div class="wrap">
+  <div class="sh">
+    <div class="num reveal">04 — The builder's fix</div>
+    <h2 class="reveal d1">Faster on paper. <em>Wrong in practice.</em></h2>
+    <p class="reveal d2">The builder went after the balanced-bracket extractor, not the function that was actually slow. It deleted a depth guard from the JSON key finder, and skipped validations "for performance." Every key lookup started matching the first key with that name at any depth — including in the REST API it had promised not to touch. None of these changed a single test result.</p>
+  </div>
+  <div class="scrollx reveal">
+    <table class="rtable">
+      <tr><th>Request</th><th>Original</th><th>Builder's fix</th><th>Fixed</th></tr>
+      <tr><td><code>blog_get_post</code> whose arguments, listed before the tool name, include <code>"name":"blog_delete_post"</code></td><td class="ok" data-l="Original">returns the post</td><td class="bad" data-l="Builder's fix">deletes the post</td><td class="ok" data-l="Fixed">returns the post</td></tr>
+      <tr><td>A title inside <code>params._meta</code> plus the real title in the arguments</td><td class="ok" data-l="Original">stores the real title</td><td class="bad" data-l="Builder's fix">stores the _meta title</td><td class="ok" data-l="Fixed">stores the real title</td></tr>
+      <tr><td>REST: <code>{"meta":{"title":"NESTED"},"title":"real"}</code></td><td class="ok" data-l="Original">stores "real"</td><td class="bad" data-l="Builder's fix">stores "NESTED"</td><td class="ok" data-l="Fixed">stores "real"</td></tr>
+      <tr><td><code>"tags": "notarray"</code></td><td class="ok" data-l="Original">-32602 error</td><td class="bad" data-l="Builder's fix">accepted, tags silently dropped</td><td class="ok" data-l="Fixed">-32602 error</td></tr>
+      <tr><td><code>initialize</code> with <code>"params": "notobj"</code></td><td class="ok" data-l="Original">-32600 error</td><td class="bad" data-l="Builder's fix">accepted</td><td class="ok" data-l="Fixed">-32600 error</td></tr>
+      <tr><td>No tool name; <code>arguments.name</code> set</td><td class="ok" data-l="Original">"missing tool name"</td><td class="bad" data-l="Builder's fix">runs that tool</td><td class="ok" data-l="Fixed">"missing tool name"</td></tr>
+      <tr><td><code>arguments</code> is a string or an array</td><td class="ok" data-l="Original">"arguments must be an object"</td><td class="bad" data-l="Builder's fix">"missing required argument: title"</td><td class="ok" data-l="Fixed">"arguments must be an object"</td></tr>
+    </table>
+  </div>
+</div></section><section class="sec" id="proof"><div class="wrap">
+  <div class="sh">
+    <div class="num reveal">05 — The proof</div>
+    <h2 class="reveal d1">Same answers. <em>1,200× sooner.</em></h2>
+    <p class="reveal d2">A speedup is easy to show. Showing that nothing else changed is the part that matters, and a passing suite can't do it — it passed on the broken version too. So the fix was checked against the original, request by request.</p>
+  </div>
+  <div class="proofs">
+    <div class="proof hl reveal"><div class="n">0<small> / 90</small></div><h4>Differences from the original</h4><p>90 requests replayed against the original and the fixed build: 16 id shapes in 4 positions, junk ids, 10 clap bodies, all seven round-2 regression cases, no-auth. Every response identical, byte for byte.</p><div class="src">eval/diff_v1.py</div></div>
+    <div class="proof reveal d1"><div class="n">10<small> / 90</small></div><h4>The harness has teeth</h4><p>Pointed at the builder's fix, the same replay flags 10 differences — the delete, the wrong titles, the dropped tags, the lost validation. A comparison that can't fail proves nothing.</p><div class="src">eval/diff_v1.py · v1 vs v2</div></div>
+    <div class="proof reveal d2"><div class="n">43<small> / 43</small></div><h4>The original suite</h4><p>Still passes. Necessary, not sufficient: it passed on all three builds.</p><div class="src">tests/probe_mcp_final.py</div></div>
+    <div class="proof reveal d3"><div class="n">20<small> / 20</small></div><h4>Writes survive kill -9</h4><p>Save a post, kill the process with no warning, restart, read it back — twenty times. Durability wasn't touched, and now it's measured.</p><div class="src">eval/kill9.py</div></div>
+  </div>
+  <div class="notproved reveal"><b>Not proven here</b>Correctness beyond these requests; power-loss durability; anything about more than one node; the older r61 release, which has the same bug in its clap endpoint and was left alone because it doesn't build on current Bend.</div>
+</div></section><section class="sec dark" id="lessons"><div class="wrap">
+  <div class="sh">
+    <div class="num reveal">06 — Lessons</div>
+    <h2 class="reveal d1">What 43/43 <em>actually means.</em></h2>
+  </div>
+  <div class="lessons">
+    <div class="lesson reveal"><div class="i">01</div><h3>A passing suite is a floor, not a verdict.</h3><p>The suite passed on the original, the regression, and the fix. It measured "still works on small inputs," and was reported as "verified."</p></div>
+    <div class="lesson reveal d1"><div class="i">02</div><h3>Evidence binds the file, not the claim.</h3><p>Hash manifests are excellent at catching drift. They say nothing about whether the right thing was tested, or who ran it.</p></div>
+    <div class="lesson reveal d2"><div class="i">03</div><h3>Profile before you fix.</h3><p>The builder rewrote code that wasn't on the hot path and reported a win. Four seconds of <code>sample</code> named the right function.</p></div>
+    <div class="lesson reveal"><div class="i">04</div><h3>Diff against a known-good build.</h3><p>When you have a version that behaves correctly, the strongest test of a change is "same bytes out." Then check the harness can fail.</p></div>
+    <div class="lesson reveal d1"><div class="i">05</div><h3>Time one realistic input.</h3><p>Every functional test used a few bytes. A single 16 KB request — a normal blog post — would have exposed this on day one.</p></div>
+    <div class="lesson reveal d2"><div class="i">06</div><h3>Strictness hides in helpers.</h3><p>In an eager language, a harmless-looking <code>pick(cond, a, b)</code> runs both sides. The codebase knew this, wrote it down, and still missed one.</p></div>
+  </div>
+</div></section>
+<!-- ============================ THE BEND SERIES ============================ -->
+<section class="series" id="series"><div class="wrap">
+  <div class="eyebrow reveal">The Bend series</div>
+  <h2 class="reveal d1">One language. Three builds. <em>One auditor.</em></h2>
+  <p class="intro reveal d2">Three programs, one young language, one method. Each was written by an AI app builder in <a href="https://bend-lang.com" target="_blank" rel="noopener">Bend 2</a> under an evidence-first discipline, then handed to Claude Code to check: reproduce every claim, attack it, profile it, fix only what is proven, and show the fix changed nothing else. Every time, the builder's own tests passed, and something real was still wrong.</p>
+  <div class="scards"><a class="scard reveal" href="../bocht/index.html"><div class="n">01 · bocht</div><div class="t">bocht</div><p>The framework. A whole backend (HTTP, auth, rate limits, WAL storage, MCP) compiled from one Bend program into one binary.</p><div class="m"><span>8,777 lines</span><span>1 binary</span><span>release r61</span></div><div class="go">Read the case study →</div></a><div class="scard reveal here"><div class="n">02 · bochtCMS</div><div class="t">bochtCMS</div><p>The app on top. A blog CMS whose only interface is seven MCP tools, and the quadratic curve its 43 passing tests never saw.</p><div class="m"><span>7 MCP tools</span><span>1,200× fix</span><span>0 / 90 diffs</span></div><div class="go">You are here</div></div><a class="scard reveal" href="../shellOS/index.html"><div class="n">03 · shellOS</div><div class="t">shellOS</div><p>The desktop. A single-window shell drawn pixel by pixel in pure Bend: terminal, reader, palette. Ported to a Mac and redesigned.</p><div class="m"><span>9,641 lines</span><span>17 C effects</span><span>3 bugs fixed</span></div><div class="go">Read the case study →</div></a></div>
+  <a class="all reveal" href="../index.html">About the series: the language, the method, what it found →</a>
+</div></section>
+
+<!-- ============================ FOOT ============================ -->
+<footer class="foot"><div class="wrap">
+  <h2>One AI wrote it. Another checked it. <em>A person decided which one to believe.</em></h2>
+  <div class="credits"><div class="credit"><div class="k">Framework &amp; CMS</div><p>Generated by an AI app builder under its evidence-first methodology, in Bend 2.0.32–2.0.34.</p></div><div class="credit"><div class="k">Audit &amp; fix</div><p>Claude Code (Opus 5.5): reproduction, adversarial tests, profiling, the one-function fix, and the differential proof.</p></div><div class="credit"><div class="k">Direction</div><p>Chris Kluis: asked for the evaluation, rejected the builder's fix, and chose to publish the case study.</p></div></div>
+  <div class="links"><a href="https://bend-lang.com" target="_blank" rel="noopener">Bend ↗</a><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol ↗</a><a href="https://ckluis.github.io/experiments/">All experiments ↗</a></div>
+  <p class="fine">Status: local. The source and evaluation scripts live in a private repository for now. All timings measured on one Apple-silicon Mac, Bend 2.0.34, 29 Sep 2026. Absolute numbers will differ on other hardware; the slopes won't.</p>
+</div></footer>
+<script src="../assets/series.js"></script>
+</body>
+</html>
