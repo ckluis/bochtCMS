@@ -93,7 +93,7 @@ None of these cases are covered by the 43-test probe.
 
 # Round 3: our fix (v1 source + one function), 2026-09-29
 
-the builder's v2 was dropped; the fix is applied to the v1 source, which handled every request correctly.
+The builder's v2 was dropped; the fix is applied to the v1 source, which handled every request correctly.
 
 ## Root cause (found with macOS `sample`, not guessed)
 The profile during a slow request was almost all `jf_raw_go` and `String.from_list`. `jf_raw_go` reads an

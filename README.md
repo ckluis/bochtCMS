@@ -1,3 +1,6 @@
+> **Case study:** https://ckluis.github.io/bochtCMS/ (part 2 of the [Bend series](https://ckluis.github.io/experiments/bend/): [bocht](https://github.com/ckluis/bocht) · [bochtCMS](https://github.com/ckluis/bochtCMS) · [shellOS](https://github.com/ckluis/shellOS)).
+> The page is `index.html` in this repo, served by GitHub Pages from `main`. Below: the builder's bundle README, kept as shipped; the audit is in `eval/EVALUATION.md`.
+
 # Bocht MCP blog — validatable source bundle
 
 The whole CMS is one Bend program exposing its entire interface as MCP tools
