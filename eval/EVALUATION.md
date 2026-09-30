@@ -1,7 +1,7 @@
 # Bocht evaluation — 2026-09-29
 
 Machine: macOS arm64, 16 GB, Apple clang 21, Bend 2.0.34 (official darwin-arm64 build).
-Scripts in this folder start `bocht-cms/medium/fresh/med_native_mcp1` on 127.0.0.1:18081.
+Scripts in this folder start `bochtCMS/medium/fresh/med_native_mcp1` on 127.0.0.1:18081.
 
 ## Reproduced
 
@@ -46,7 +46,7 @@ Found:
 - Manifests are unsigned text: they bind a hash to a log file written by the same agent.
   They can catch drift but they don't prove who ran the test.
 - The site says 200/200; the bundle holds one of those 200 items (item197, 27 checks).
-- `bocht-source/README.md` contradicts itself: it says both "r61 does NOT build under 2.0.34"
+- `bocht/README.md` contradicts itself: it says both "r61 does NOT build under 2.0.34"
   and "The build works on 2.0.34". It also calls four version bumps "three".
 - `mcp-blog.bend` has 1,504 defs and no proofs (no `Equal`, `refl` or theorems). Bend's formal
   verification isn't used; all verification is black-box probe scripts.
@@ -55,7 +55,7 @@ Found:
 
 # Round 2: "deep-fix" bundle, 2026-09-29
 
-Only `bocht-cms/mcp-blog.bend` changed in substance (9,582 → 9,681 lines, SHA-256 `07a60cbb…`,
+Only `bochtCMS/mcp-blog.bend` changed in substance (9,582 → 9,681 lines, SHA-256 `07a60cbb…`,
 which matches the README). It builds clean in 22 s and still passes 43/43. The probe log now
 includes per-check lines (round 1 gap fixed).
 
@@ -130,7 +130,7 @@ Time now grows linearly; MCP is as fast as REST.
   "SIGKILL after ack" failure was the rate limiter answering 429, not data loss).
 
 ## Not changed
-- `bocht-source/` (r61 and `src/`) likely has the same `jf_raw_go` (REST clap). r61 is a pinned release
+- `bocht/` (r61 and `src/`) likely has the same `jf_raw_go` (REST clap). r61 is a pinned release
   that doesn't build on 2.0.34, so it was left alone.
 - Other strict `Bool.pick` recursions (`jf_skip_ws`, `jf_trail_ws_go`, `mcp_bal_go`) still walk the whole
   body once per call. That is linear and measured fine up to the 64 KB cap; cleanup is optional.
