@@ -1,5 +1,5 @@
 import json, os, socket, subprocess, sys, time, signal, urllib.request, urllib.error, concurrent.futures as cf, shutil
-BIN=os.environ.get("BOCHT_BIN","/Users/clank/Desktop/projects/bend/bochtCMS/medium/fresh/med_native_mcp1")
+BIN=os.environ.get("BOCHT_BIN",os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","medium","fresh","med_native_mcp1"))
 WD=os.path.dirname(os.path.abspath(__file__))+"/wd"
 SECRET="adv-secret-123"
 BASE="http://127.0.0.1:18081"
