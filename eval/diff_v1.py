@@ -3,6 +3,7 @@
 import json, os, re, shutil, socket, subprocess, sys, time
 HERE=os.path.dirname(os.path.abspath(__file__)); SECRET="diff-secret"
 def run(binary):
+    binary=os.path.abspath(binary)  # the server runs with cwd=wd, so resolve relative paths first
     wd=os.path.join(HERE,"wd_diff"); shutil.rmtree(wd,ignore_errors=True); os.makedirs(wd)
     p=subprocess.Popen([binary],cwd=wd,env=dict(os.environ,MEDIUM_ADMIN_SECRET=SECRET),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     for _ in range(200):
