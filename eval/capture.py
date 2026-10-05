@@ -1,0 +1,12 @@
+exec(open(__import__("os").path.join(__import__("os").path.dirname(__import__("os").path.abspath(__file__)),"adv.py")).read().split("R=[]")[0])
+shutil.rmtree(WD,ignore_errors=True); os.makedirs(WD); assert start()
+def show(payload):
+    st,t=req(payload); print(">>>", json.dumps(payload)); print("<<<", st, t); print()
+show({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}})
+st,t=req({"jsonrpc":"2.0","id":2,"method":"tools/list"}); print("<<< tools/list:", [ (x["name"], x["description"][:80]) for x in json.loads(t)["result"]["tools"]]); print(json.dumps(json.loads(t)["result"]["tools"][0])[:600]); print()
+show({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"blog_create_post","arguments":{"title":"Hello, MCP","body":"The interface is the app.","tags":["mcp","meta"]}}})
+show({"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"blog_publish_post","arguments":{"id":"p1"}}})
+show({"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"blog_get_post","arguments":{"id":"p9"}}})
+show({"jsonrpc":"2.0","id":6,"method":"bogus/method"})
+st,t=req({"jsonrpc":"2.0","id":7,"method":"tools/list"},token=None); print("<<< no token:", st, t)
+proc.kill(); print(open(WD+"/server.log").read()[:1500])

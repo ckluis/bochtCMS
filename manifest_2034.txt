@@ -1,0 +1,12 @@
+BINARY: medium/fresh/med_native_mcp1
+BINARY_SHA256: c50db6f25ef2f012d61f278f32b94269853c0636b79b13df25143a0223f075f0
+SOURCE: mcp-blog.bend
+SOURCE_SHA256: 07a60cbb6ca8a388af29fd6048e1f5a4785fc5eb715f00a0eb826b325a74d334
+TOOLCHAIN: Bend 2.0.34 (linux-x64)
+RUN_UTC: 20260929T223000Z
+FILE: tests/probe_2034_verify.log PASS=43 FAIL=0
+TOTAL_PASS: 43
+TOTAL_FAIL: 0
+NOTE: probe re-run 2026-09-29 against the deep-fix 2.0.34-built binary
+(c50db6f2…); includes the MCP large-request performance fix (eliminated
+mcp_val_kind/mcp_subval from the hot path; 16kB create 46s -> 12s).

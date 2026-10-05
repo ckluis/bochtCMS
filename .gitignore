@@ -1,0 +1,6 @@
+*.zip
+medium/
+build.log
+probe_mac.*
+tests/probe_wd/
+eval/wd/

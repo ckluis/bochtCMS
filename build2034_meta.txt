@@ -1,0 +1,9 @@
+CMD: bend combined_mcp1.bend -o med_native_2034_perf
+EXIT_CODE: 0
+DURATION_MS: 233993
+SOURCE_SHA256: 07a60cbb6ca8a388af29fd6048e1f5a4785fc5eb715f00a0eb826b325a74d334
+BINARY_SHA256: c50db6f25ef2f012d61f278f32b94269853c0636b79b13df25143a0223f075f0
+BINARY_SIZE: 4249992
+BINARY_FILE: med_native_2034_perf: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld
+FINISHED_UTC: 2026-09-29T22:30:00Z
+BUILD_NOTE: deep-fix build; TMPDIR=~/workspace/.bend-tmp; clang 18.1.3
