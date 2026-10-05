@@ -1,5 +1,14 @@
 > **Case study:** https://ckluis.github.io/bochtCMS/ (part 2 of the [Bend series](https://ckluis.github.io/experiments/bend/): [bocht](https://github.com/ckluis/bocht) · [bochtCMS](https://github.com/ckluis/bochtCMS) · [shellOS](https://github.com/ckluis/shellOS)).
 > The page is `index.html` in this repo, served by GitHub Pages from `main`. Below: the builder's bundle README, kept as shipped; the audit is in `eval/EVALUATION.md`.
+>
+> **Current toolchain: Bend 2.0.35** (5 Oct 2026); it builds with no source changes. `mcp-blog.bend` (9,598 lines) is the builder's
+> v1 plus the one-function `jf_raw_go` fix, not the "deep-fix" revision the README below describes. Build and verify from this directory:
+>
+> ```
+> bend mcp-blog.bend -o medium/fresh/med_native_mcp1          # ~23 s on Apple silicon
+> BOCHT_ROOT="$PWD" python3 tests/probe_mcp_final.py          # RESULT: PASS=43 FAIL=0
+> cd eval && python3 diff_v1.py <reference_binary> ../medium/fresh/med_native_mcp1   # 90 requests, 0 differences
+> ```
 
 # Bocht MCP blog — validatable source bundle
 

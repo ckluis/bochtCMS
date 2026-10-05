@@ -134,3 +134,34 @@ Time now grows linearly; MCP is as fast as REST.
   that doesn't build on 2.0.34, so it was left alone.
 - Other strict `Bool.pick` recursions (`jf_skip_ws`, `jf_trail_ws_go`, `mcp_bal_go`) still walk the whole
   body once per call. That is linear and measured fine up to the 64 KB cap; cleanup is optional.
+
+---
+
+# Round 4: Bend 2.0.35, 2026-10-05
+
+Bend 2.0.35 was released 3 Oct 2026. `mcp-blog.bend` builds on it with **no source changes**
+(23 s, the same 10 `size_t`/`u64` warnings). Reference: the same source built with Bend 2.0.34.
+
+| Check | Result |
+|---|---|
+| 43-test probe | `RESULT: PASS=43 FAIL=0` |
+| `diff_v1.py`, 2.0.34 build vs 2.0.35 build | 90 requests, 0 differences |
+| `kill9.py` | 20/20 acknowledged writes survive SIGKILL + restart |
+
+Create-post timing (`sweep.py`, best of 3, seconds):
+
+| Body | 4 KB | 16 KB | 32 KB | 48 KB | 60 KB |
+|---|---|---|---|---|---|
+| 2.0.34 | 0.0110 | 0.0375 | 0.0750 | 0.1085 | 0.1366 |
+| 2.0.35 | 0.0114 | 0.0379 | 0.0741 | 0.1093 | 0.1372 |
+
+Peak server memory (`mem.py`: 300 posts of 8 KB, 30 full lists, then 16/32/60 KB posts), two runs each:
+2.0.34 215.3 / 213.3 MiB, 2.0.35 214.5 / 212.5 MiB (`ps` RSS, KiB / 1024). The 2.0.35 release notes'
+memory improvements don't show up for this workload.
+
+The same pass brought bocht's r61 to 2.0.35 (one line: `TCP.listen` takes a host) and gave it this
+repo's `jf_raw_go` fix. On r61, the clap endpoint with 32 KB of padding went from 16.9 s to 0.013 s,
+with 0 differences across the 90-request replay.
+
+`diff_v1.py` now resolves binary paths before starting each server (it runs with `cwd` set to a
+scratch dir, so a relative path failed).
